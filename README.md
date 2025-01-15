@@ -1,179 +1,306 @@
-code 1: 
-
 import nltk
-from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-
-# Download required NLTK resources
-nltk.download('punkt_tab')
-nltk.download('averaged_perceptron_tagger_eng')
-nltk.download('stopwords')
-
-# Input text
-text = "This is an example sentence demonstrating part of speech tagging."
-
-# Tokenize and remove stop words
-stop_words = set(stopwords.words('english'))
-filtered_words = [word for word in word_tokenize(text) if word.lower() not in stop_words]
-
-# Perform POS tagging
-pos_tags = nltk.pos_tag(filtered_words)
-
-# Output
-print(pos_tags)
-
-------------------------------------------------------------------------------------------------------------
+from nltk.corpus import stopwords
 
 
+nltk.download("punkt")
 
-CODE 2
+nltk.download("averaged_perceptron_tagger")
+
+nltk.download("stopwords")
+
+text = "Natural Language Processing in an exiting feild of Artifical Intelligence"
+
+stop_words = set(stopwords.words("english"))
+stop_words
+
+tokens = word_tokenize(text)
+tokens
+
+filter_words = []
+for word in tokens:
+    if word.lower() not in stop_words:
+        filter_words.append(word)
+
+filter_words
+
+pos_tags = nltk.pos_tag(filter_words)
+pos_tags
 
 
+
+
+
+
+
+-----------------------------------------------2 --------------------------------
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-# Sample documents
-documents = [
-    "This is a sample document.",
-    "This document is another sample document.",
-    "And this is yet another example document."
+docs = [
+    "Natural Language processing is amazing.",
+    "Machine learning and NLP go hand in hand.",
+    "TF-IDF helps find important words in a document."
 ]
 
-# Initialize TF-IDF vectorizer
-vectorizer = TfidfVectorizer()
-
-# Compute TF-IDF matrix
-tfidf_matrix = vectorizer.fit_transform(documents)
-
-# Display TF-IDF values
-for word, idx in vectorizer.vocabulary_.items():
-    print(f"{word}: {vectorizer.idf_[idx]:.3f}")
+vec = TfidfVectorizer()
 
 
+tfidf_mat = vec.fit_transform(docs)
 
------------------------------------------------------------------------------------------
-
-
-
-CODE 3
+print(vec.get_feature_names_out())
 
 
-import nltk
-from collections import defaultdict, Counter
-from nltk.util import ngrams
-from nltk.tokenize import word_tokenize
-from nltk import ConditionalFreqDist
+print(tfidf_mat.toarray())
 
-# Download required resources
-nltk.download('punkt')
 
-class NgramModel:
-    def __init__(self, n):
-        self.n = n
-        self.model = defaultdict(Counter)
-
-    def train(self, text):
-        tokens = word_tokenize(text.lower())
-        n_grams = ngrams(tokens, self.n)
-        for gram in n_grams:
-            prefix, next_word = tuple(gram[:-1]), gram[-1]
-            self.model[prefix][next_word] += 1
-
-    def predict(self, context):
-        context = tuple(context[-(self.n - 1):])
-        if context in self.model:
-            return self.model[context].most_common(1)[0][0]
-        return None
-
-# Example usage
-text = "This is a simple example. This example is for N-gram language modeling."
-model = NgramModel(n=2)  # Bigram model
-model.train(text)
-
-# Predict next word
-context = ["this", "is"]
-print("Next word:", model.predict(context))
+--------------------------3 --------------------------------------------
 
 
 
+from nltk import ngrams
+from collections import Counter
 
-----------------------------------------------------------------------------
+# Input text and n-gram size
+text = "Natural language processing is fun and challenging."
+N = 2  # Size of the n-grams
 
+# Tokenize and create n-grams
+tokens = text.lower().split()
+n_grams = list(ngrams(tokens, N))
 
-CODE 4A:
+# Count n-grams and prefixes
+counts = Counter(n_grams)
+prefix_counts = Counter(ng[:-1] for ng in n_grams)
+
+# Calculate probabilities
+model = {ng: counts[ng] / prefix_counts[ng[:-1]] for ng in counts}
+
+# Print the n-gram probabilities
+print("N-gram Probabilities:", model)
+
+--------------------------------------------4 --------------------------
 
 from gensim.models import Word2Vec
 from nltk.tokenize import word_tokenize
 import nltk
 
-# Download required resources
-nltk.download('punkt')
+nltk.download("punkt")
 
-# Sample corpus
 corpus = [
-    "This is a simple example.",
-    "Word embeddings are useful for NLP tasks.",
-    "Word2Vec captures semantic relationships between words."
+    "Natural language processing is a fascinating field.",
+    "Word embeddings like Word2Vec are used in NLP.",
+    "Deep learning models have revolutionized text analysis.",
 ]
 
-# Preprocess: Tokenize sentences
-tokenized_corpus = [word_tokenize(sentence.lower()) for sentence in corpus]
+tokenized_corpus = []
+for sentence in corpus:
+    sentence_lower = sentence.lower()
+    tokenized_sentence = word_tokenize(sentence_lower)
+    tokenized_corpus.append(tokenized_sentence)
 
-# Train Word2Vec model
-model = Word2Vec(sentences=tokenized_corpus, vector_size=100, window=5, min_count=1, workers=4)
+word2vec_model = Word2Vec(sentences=tokenized_corpus, vector_size=100, window=5, min_count=1, workers=4)
 
-# Get vector for a word
-word_vector = model.wv['word']  # Replace 'word' with any word in the vocabulary
-print(f"Vector for 'word': {word_vector}")
-
-# Find most similar words
-similar_words = model.wv.most_similar('word', topn=5)  # Replace 'word' as needed
-print("Most similar words:", similar_words)
-
-
-
-
-
-CODE 4B:
-
-
-from google.colab import files
-uploaded = files.upload()
+word = "nlp"
+if word in word2vec_model.wv:
+    print(f"Word2Vec embedding for '{word}':\n{word2vec_model.wv[word]}")
+else:
+    print(f"Word '{word}' not in vocabulary.")
 
 
 
 
-from gensim.models import KeyedVectors
+import gensim.downloader as api
 
-# Load GloVe pre-trained embeddings (download required .txt file first)
-glove_path = 'glove.6B.100d.txt'  # Update path to GloVe file
-glove_model = KeyedVectors.load_word2vec_format(glove_path, binary=False, no_header=True)
+# Download pre-trained GloVe embeddings
+model = api.load("glove-wiki-gigaword-100")
 
-# Get vector for a word
-glove_vector = glove_model['word']  # Replace 'word' with your word
-print(f"GloVe vector for 'word': {glove_vector}")
-
-
-
-
-
-
-
-
-
-
-
-CODE 4C:
+# Get the vector representation of a word
+word_vector = model['dog']
+print(word_vector)
 
 
 from gensim.models import FastText
 
-# Train FastText model on the tokenized corpus
-fasttext_model = FastText(sentences=tokenized_corpus, vector_size=100, window=5, min_count=1, workers=4)
+# Sample text corpus (or load from a file)
+sentences = [
+    "This is a sentence about dogs.",
+    "Dogs are furry friends.",
+    "Cats are also cute animals."
+]
 
-# Get vector for a word
-fasttext_vector = fasttext_model.wv['word']  # Replace 'word' with your word
-print(f"FastText vector for 'word': {fasttext_vector}")
+# Create a FastText model (using vector_size instead of size)
+model = FastText(sentences, min_count=1, vector_size=100, window=5)
 
-# Similarity
-fasttext_similar = fasttext_model.wv.most_similar('word', topn=5)
-print("Most similar words (FastText):", fasttext_similar)
+# Get the vector representation of a word (optional)
+word_vector = model.wv['dog']
+print(word_vector)
+
+
+-----------------------------------------------5 ----------------------------------------
+
+import numpy as np
+
+class SimpleTokenizer:
+    def __init__(self):
+        self.word_index = {"the": 1, "cat": 2, "sat": 3, "on": 4, "mat": 5, "is": 6, "happy": 7, "dog": 8, "sad": 9}
+        self.index_word = {v: k for k, v in self.word_index.items()}
+        
+    def texts_to_sequences(self, texts):
+        sequences = []
+        words = texts[0].split()
+        sequence = []
+        for word in words:
+            if word in self.word_index:
+                sequence.append(self.word_index[word])
+        sequences.append(sequence)
+        return sequences
+
+class SimpleLSTMModel:
+    def __init__(self, vocab_size):
+        self.vocab_size = vocab_size
+
+    def predict(self, input_sequence):
+        random_index = np.random.randint(1, self.vocab_size)
+        one_hot_vector = np.zeros(self.vocab_size)
+        one_hot_vector[random_index] = 1
+        return one_hot_vector
+
+tokenizer = SimpleTokenizer()
+model = SimpleLSTMModel(vocab_size=len(tokenizer.word_index) + 1)
+
+def predict_next_word(model, tokenizer, input_text):
+    encoded = tokenizer.texts_to_sequences([input_text])[0]
+    pred = model.predict(encoded)
+    predicted_word_index = np.argmax(pred)
+    predicted_word = tokenizer.index_word.get(predicted_word_index, "<unknown>")
+    return predicted_word
+
+input_text = "the cat"
+predicted_word = predict_next_word(model, tokenizer, input_text)
+
+print(f"Predicted next word for '{input_text}': {predicted_word}")
+
+------------------------------------------------6 -----------------------------------
+import torch
+from torch.utils.data import Dataset, DataLoader
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
+EPOCHS = 5
+BATCH_SIZE = 4
+LEARNING_RATE = 5e-6
+MAX_LENGTH = 50
+
+# Prepare the dataset
+class TextDataset(Dataset):
+    def __init__(self, text, tokenizer, max_length):
+        self.input_ids = []
+        for line in text:
+            encodings = tokenizer(line, truncation=True, max_length=max_length, padding="max_length")
+            self.input_ids.append(torch.tensor(encodings['input_ids']))
+
+    def __len__(self):
+        return len(self.input_ids)
+
+    def __getitem__(self, idx):
+        return self.input_ids[idx]
+
+# Initialize tokenizer and model
+tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+model = GPT2LMHeadModel.from_pretrained('gpt2')
+
+# Ensure padding token is set for GPT-2
+if tokenizer.pad_token is None:
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+    model.resize_token_embeddings(len(tokenizer))
+
+# Prepare text data
+text_data = [
+    "The quick brown fox jumps over the lazy dog.",
+    "The sun sets in the west and rises in the east.",
+    "Artificial Intelligence is transforming the world.",
+    "Deep learning models are revolutionizing various industries.",
+    "Natural Language Processing is a key area of artificial intelligence."
+]
+
+# Create dataset and dataloader
+dataset = TextDataset(text_data, tokenizer, max_length=MAX_LENGTH)
+dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+
+# Setup optimizer and device
+optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+# Training loop
+for epoch in range(EPOCHS):
+    model.train()
+    for batch in dataloader:
+        input_ids = batch.to(device)
+        optimizer.zero_grad()
+        outputs = model(input_ids, labels=input_ids)
+        loss = outputs.loss
+        loss.backward()
+        optimizer.step()
+    print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {loss.item()}")
+
+# Text generation
+model.eval()
+prompt = "Artificial Intelligence"
+encoded_input = tokenizer(prompt, return_tensors='pt').to(device)
+generated_ids = model.generate(encoded_input['input_ids'], max_length=MAX_LENGTH, pad_token_id=tokenizer.pad_token_id)
+generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+
+print(f"Generated Text: {generated_text}")
+
+-------------------7------------------------------
+import numpy as np 
+import matplotlib.pyplot as plt 
+import torch 
+import torch.nn as nn 
+ 
+# Parameters 
+SEQ_LEN = 5 
+D_MODEL = 4 
+ 
+# Sample Sequence Dataset 
+sequence = torch.tensor([[1.0, 0.0, 1.0, 0.0], 
+                         [0.0, 2.0, 0.0, 1.0], 
+                         [1.0, 1.0, 1.0, 1.0], 
+                         [0.0, 0.0, 2.0, 1.0], 
+                         [1.0, 2.0, 0.0, 0.0]]) 
+ 
+# Self-Attention Components 
+class SelfAttention(nn.Module): 
+    def __init__(self, d_model): 
+        super(SelfAttention, self).__init__() 
+        self.query = nn.Linear(d_model, d_model) 
+        self.key = nn.Linear(d_model, d_model) 
+        self.value = nn.Linear(d_model, d_model) 
+ 
+    def forward(self, x): 
+        Q = self.query(x) 
+        K = self.key(x) 
+        V = self.value(x) 
+        attention_scores = torch.matmul(Q, K.transpose(-2, -1)) / np.sqrt(K.size(-1)) 
+        attention_weights = torch.softmax(attention_scores, dim=-1) 
+        attention_output = torch.matmul(attention_weights, V) 
+        return attention_output, attention_weights 
+ 
+# Initialize Self-Attention 
+self_attention = SelfAttention(D_MODEL) 
+ 
+# Compute Attention Outputs and Weights 
+attention_output, attention_weights = self_attention(sequence) 
+ 
+# Visualize Attention Map 
+plt.figure(figsize=(8, 6)) 
+plt.imshow(attention_weights.detach().numpy(), cmap="viridis") 
+plt.colorbar() 
+plt.title("Attention Map") 
+plt.xlabel("Key Positions") 
+plt.ylabel("Query Positions") 
+plt.show() 
+ 
+
+
+
